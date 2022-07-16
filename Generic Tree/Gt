@@ -1,0 +1,147 @@
+import java.util.*;
+
+public class Main{
+    
+    public static class Node{
+        int data;
+        ArrayList<Node> children;
+        
+        Node(int data){
+            this.data = data;
+            children = new ArrayList<>();
+        }
+    }
+    
+    public static Node construct(Integer arr[]){
+        Stack<Node> st = new Stack<>();
+        Node root = new Node(arr[0]);
+        st.push(root);
+        
+        int idx = 1;
+        while(idx < arr.length){
+            Integer val = arr[idx];
+            
+            if(val == null){
+                st.pop();
+            }else{
+                Node node = new Node(val);
+                Node par = st.peek();
+                par.children.add(node);
+                st.push(node);
+            }
+            ++idx;
+        }
+        return root;
+    }
+    public static void display(Node root){
+        System.out.print(root.data+"->");
+        for(Node child : root.children){
+            System.out.print(child.data+" ");
+        }
+        System.out.println(".");
+        for(Node child : root.children){
+            display(child);
+        }
+    }
+    public static int size(Node root){
+        int s = 0;
+        for(Node child : root.children){
+            s += size(child);
+        }
+        return s + 1;
+    }
+    public static int max(Node root){
+        int m = Integer.MIN_VALUE;
+        for(Node child : root.children){
+            int max1 = max(child);
+            m = Math.max(m,max1);
+        }
+        return Math.max(m,root.data);
+    }
+    public static void levelOrder(Node root){
+        Queue<Node> que = new ArrayDeque<>();
+        que.add(root);
+        while(que.size() > 0){
+            Node rem = que.remove();
+            System.out.print(rem.data+" ");
+            for(Node child : rem.children){
+                que.add(child);
+            }
+        }
+        System.out.println(".");
+    }
+    public static void levelOrderLineWise(Node root){
+        Queue<Node> mainq = new ArrayDeque<>();
+        Queue<Node> helpq = new ArrayDeque<>();
+        mainq.add(root);
+        while(mainq.size() > 0 ){
+            Node rem = mainq.remove();
+            System.out.print(rem.data+" ");
+            for(Node child : rem.children){
+                helpq.add(child);
+            }
+            if(mainq.size() == 0){
+                System.out.println("");
+                Queue<Node> temp = mainq;
+                mainq = helpq;
+                helpq = temp;
+            } 
+        }
+    }
+    public static boolean find(Node root,int data){
+        if(root.data == data){
+            return true;
+        }
+        
+        for(Node child : root.children){
+        boolean flag = find(child,data);
+            if(flag){
+                return true;
+            }
+        }
+        return false;
+    }
+    public static ArrayList<Integer> NodeToRootPath(Node root,int data){
+        if(root.data == data){
+            ArrayList<Integer> bse = new ArrayList<>();
+            bse.add(root.data);
+            return bse;
+        }
+        for(Node child : root.children){
+            ArrayList<Integer> ress = NodeToRootPath(child,data);
+            if(ress.size()> 0){
+                ress.add(root.data);
+                return ress;
+            }
+        }
+        return new ArrayList<>();
+    }
+    public static int lca(Node root,int d1,int d2){
+        ArrayList<Integer> path1 = NodeToRootPath(root,d1);
+        ArrayList<Integer> path2 = NodeToRootPath(root,d2);
+        int p1s = path1.size()-1;
+        int p2s = path2.size()-1;
+        
+        while(p1s >= 0 && p2s >=0){
+            if(path1.get(p1s) == path2.get(p2s)){
+                --p1s;
+                --p2s;
+            }else break;
+        }
+        return path1.get(p1s+1);
+    }
+    
+    
+    public static void main(String[] args){
+        Integer []arr = {10, 20, 50, null, 60, null, null, 30, 70, 90, null, 100, null, 110, null, null, null, 40, 80, null, null, null};
+        Node root = construct(arr);
+        // display(root);
+        // System.out.println(size(root));
+        // System.out.println(max(root));
+        // levelOrder(root);
+        // levelOrderLineWise(root);
+        // System.out.println(find(root,110));
+        // System.out.println(NodeToRootPath(root,110));
+        System.out.println(lca(root,100,110));
+    } 
+}
